@@ -14,13 +14,15 @@
 
 "Rule to run the terser binary under bazel"
 
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "collect_js_modules")
+
 _TERSER_ATTRS = {
     "src": attr.label(
         doc = """A JS file, or a rule producing .js as its default output
 
 Note that you can pass multiple files to terser, which it will bundle together.
 If you want to do this, you can pass a filegroup here.""",
-        allow_files = [".js"],
+        allow_files = True,
         mandatory = True,
     ),
     "config_file": attr.label(
@@ -122,13 +124,20 @@ def _terser(ctx):
 
     args.add_all(["--config-file", opts.path])
 
+    modules = collect_js_modules(ctx)
+
     ctx.actions.run(
-        inputs = ctx.files.src + [opts],
+        inputs = modules.sources + [opts],
         outputs = outputs,
         executable = ctx.executable.terser_bin,
         arguments = [args],
         progress_message = "Minifying JavaScript %s [terser]" % (ctx.outputs.minified.short_path),
     )
+
+    result = [DefaultInfo(files = depset(outputs))]
+    if modules.module_format:
+        result.append(JSModuleInfo(module_format = modules.module_format, sources = depset(outputs)))
+    return result
 
 terser_minified = rule(
     doc = """Run the terser minifier.

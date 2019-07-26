@@ -22,6 +22,7 @@ NESTED_PACKAGES = [
     "labs",
     "less",
     "protractor",
+    "rollup",
     "stylus",
     "terser",
     "typescript",
