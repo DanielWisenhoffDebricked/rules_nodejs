@@ -108,7 +108,7 @@ git_repository(
     commit = "d28150aa8d69604d33329ca1238f801f6599f415",
     patch_args = ["-p1"],
     # TODO(gregmagolan): land JS provider changes in rules_typescript and switch upstream
-    # This patch currently generated from https://github.com/alexeagle/rules_typescript/tree/js_providers
+    # This patch currently generated from https://github.com/gregmagolan/rules_typescript/tree/js_providers
     patches = ["@build_bazel_rules_nodejs//:rules_typescript_providers.patch"],
     remote = "http://github.com/bazelbuild/rules_typescript.git",
 )

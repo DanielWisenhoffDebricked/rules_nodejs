@@ -16,7 +16,6 @@
 """
 
 load("@build_bazel_rules_nodejs//internal/common:collect_es6_sources.bzl", "collect_es6_sources")
-load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
 
 def _es6_consumer(ctx):
     es6_sources = collect_es6_sources(ctx)
@@ -29,6 +28,6 @@ def _es6_consumer(ctx):
 es6_consumer = rule(
     implementation = _es6_consumer,
     attrs = {
-        "deps": attr.label_list(aspects = [sources_aspect]),
+        "deps": attr.label_list(),
     },
 )

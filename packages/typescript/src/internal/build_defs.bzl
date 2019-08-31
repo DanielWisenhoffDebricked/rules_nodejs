@@ -14,8 +14,7 @@
 
 "TypeScript compilation"
 
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo")
-load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "node_modules_aspect")
 
 # pylint: disable=unused-argument
 # pylint: disable=missing-docstring
@@ -398,7 +397,7 @@ either:
             doc = "If using tsickle, instruct it to translate types to ClosureJS format",
         ),
         "deps": attr.label_list(
-            aspects = DEPS_ASPECTS + [sources_aspect],
+            aspects = DEPS_ASPECTS + [node_modules_aspect],
             doc = "Compile-time dependencies, typically other ts_library targets",
         ),
     }),

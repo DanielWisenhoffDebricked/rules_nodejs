@@ -17,8 +17,7 @@
 For use by yarn_install and npm_install. Not meant to be part of the public API.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo")
-load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "node_modules_aspect")
 
 def _npm_umd_bundle(ctx):
     if len(ctx.attr.entry_point.files.to_list()) != 1:
@@ -92,7 +91,7 @@ This target would be then be used instead of the generated `@npm//typeorm:typeor
     "package": attr.label(
         doc = """The npm package target""",
         mandatory = True,
-        aspects = [sources_aspect],
+        aspects = [node_modules_aspect],
     ),
     "_browserify_wrapped": attr.label(
         executable = True,

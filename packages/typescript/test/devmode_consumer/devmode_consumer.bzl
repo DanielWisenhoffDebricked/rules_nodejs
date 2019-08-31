@@ -15,17 +15,13 @@
 """Example of a rule that requires es2015 (devmode) inputs.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSTransitiveNamedModuleInfo")
-load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
 
 def _devmode_consumer(ctx):
-    # Since we apply the sources_aspect to our deps below, we can iterate through
-    # the deps and fetch all transitive named js files from the JSTransitiveNamedModuleInfo
-    # provider returned from the apsect.
     sources_depsets = []
     for dep in ctx.attr.deps:
-        if JSTransitiveNamedModuleInfo in dep:
-            sources_depsets.append(dep[JSTransitiveNamedModuleInfo].sources)
+        if JSNamedModuleInfo in dep:
+            sources_depsets.append(dep[JSNamedModuleInfo].sources)
     sources = depset(transitive = sources_depsets)
 
     return [DefaultInfo(
@@ -36,6 +32,6 @@ def _devmode_consumer(ctx):
 devmode_consumer = rule(
     implementation = _devmode_consumer,
     attrs = {
-        "deps": attr.label_list(aspects = [sources_aspect]),
+        "deps": attr.label_list(),
     },
 )

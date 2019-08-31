@@ -7,8 +7,7 @@ to the `deps` of one of their targets.
 """
 
 load("@build_bazel_rules_nodejs//:declaration_provider.bzl", "DeclarationInfo")
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSTransitiveModuleInfo")
-load("//internal/common:sources_aspect.bzl", "sources_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo")
 
 # Takes a depset of files and returns a corresponding list of file paths without any files
 # that aren't part of the specified package path. Also include files from external repositories
@@ -106,9 +105,9 @@ def _npm_package(ctx):
         # Only collect DefaultInfo files (not transitive)
         sources_depsets.append(dep.files)
 
-        # All direct & transitive JavaScript-producing deps (gathered up by sources_aspect)
-        if JSTransitiveModuleInfo in dep:
-            sources_depsets.append(dep[JSTransitiveModuleInfo].sources)
+        # All direct & transitive JavaScript-producing deps
+        if JSModuleInfo in dep:
+            sources_depsets.append(dep[JSModuleInfo].sources)
 
         # Include all transitive declerations
         if DeclarationInfo in dep:
@@ -153,7 +152,6 @@ NPM_PACKAGE_ATTRS = {
     ),
     "deps": attr.label_list(
         doc = """Other targets which produce files that should be included in the package, such as `rollup_bundle`""",
-        aspects = [sources_aspect],
         allow_files = True,
     ),
     "_packager": attr.label(

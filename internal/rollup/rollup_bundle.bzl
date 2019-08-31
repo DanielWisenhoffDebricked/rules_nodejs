@@ -18,8 +18,7 @@ The versions of Rollup and terser are controlled by the Bazel toolchain.
 You do not need to install them into your project.
 """
 
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo")
-load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "node_modules_aspect")
 load("//internal/common:collect_es6_sources.bzl", _collect_es2015_sources = "collect_es6_sources")
 load("//internal/common:module_mappings.bzl", "get_module_mappings")
 
@@ -571,7 +570,7 @@ def _rollup_bundle(ctx):
 # If users are in a different repo and load the aspect themselves, they will create
 # different Provider symbols (e.g. NodeModuleInfo) and we won't find them.
 # So users must use these symbols that are load'ed in rules_nodejs.
-ROLLUP_DEPS_ASPECTS = [rollup_module_mappings_aspect, sources_aspect]
+ROLLUP_DEPS_ASPECTS = [rollup_module_mappings_aspect, node_modules_aspect]
 
 ROLLUP_ATTRS = {
     "srcs": attr.label_list(

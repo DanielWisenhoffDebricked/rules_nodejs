@@ -23,48 +23,53 @@ differing 'debug' attributes.
 """
 
 JSModuleInfo = provider(
-    doc = """TODO""",
+    doc = """JavaScript files and sourcemaps.""",
     fields = {
-        "module_format": "a string like [amd, cjs, esm, iife, umd]",
-        "sources": "depset of JavaScript files",
+        "module_format": "a string like [amd, cjs, esm, iife, umd] or \"mixed\" if the sources are of mixed formats",
+        "sources": "depset of direct and transitive JavaScript files and sourcemaps",
     },
 )
 
-JSTransitiveModuleInfo = provider(
-    doc = """Same as JSModuleInfo but also includes transitive files.
+def transitive_js_module_info(module_format, sources, deps = []):
+    """Constructs a JSModuleInfo including all transitive sources from JSModuleInfo providers in a list of deps.
 
-This is typically provided by an aspect such as sources_apsect.
+`module_format` is set to `mixed` if there are JSModuleInfo providers with mixed module formats.
 
-module_format will only be set to "mixed" if not all transitive deps have the same module_format.
-""",
-    fields = {
-        "module_format": "a string like cjs, umd",
-        "sources": "depset of JavaScript files",
-    },
-)
+Returns a single JSModuleInfo.
+"""
+    return combine_js_module_info([JSModuleInfo(module_format = module_format, sources = sources)] + collect_js_module_infos(deps))
 
-def collect_js_modules(ctx):
-    """TODO: doc"""
-    format = None
-    result = []
-    srcs = []
-    if hasattr(ctx.attr, "srcs"):
-        srcs = ctx.attr.srcs
-    elif hasattr(ctx.attr, "src"):
-        srcs = [ctx.attr.src]
-    for src in srcs:
-        if not JSModuleInfo in src:
-            result.extend(src.files.to_list())
-            continue
-        if not format:
-            format = src[JSModuleInfo].module_format
-        elif format != src[JSModuleInfo].module_format:
-            fail("a mix of module_format. TODO: better error message")
-        result.extend(src[JSModuleInfo].sources.to_list())
-    return struct(
-        module_format = format,
-        sources = result,
+def combine_js_module_info(modules):
+    """Combines all JavaScript sources and sourcemaps from a list of JSModuleInfo providers.
+
+`module_format` is set to `mixed` if there are JSModuleInfo providers with mixed module formats.
+
+Returns a single JSModuleInfo.
+"""
+    module_format = None
+    sources_depsets = []
+    for module in modules:
+        # Set module_format as "mixed" if sources have mixed module formats
+        if not module_format:
+            module_format = module.module_format
+        elif module_format != module.module_format:
+            module_format = "mixed"
+        sources_depsets.extend([module.sources])
+    return JSModuleInfo(
+        module_format = module_format,
+        sources = depset(transitive = sources_depsets),
     )
+
+def collect_js_module_infos(deps):
+    """Collects all JSModuleInfo providers from a list of deps.
+
+Returns a list of JSModuleInfo providers.
+"""
+    modules = []
+    for dep in deps:
+        if JSModuleInfo in dep:
+            modules.extend([dep[JSModuleInfo]])
+    return modules
 
 JSNamedModuleInfo = provider(
     doc = """JavaScript files whose module name is self-contained.
@@ -77,19 +82,39 @@ These outputs should be named "foo.umd.js"
 Historical note: this was the typescript.es5_sources output.
 """,
     fields = {
-        "sources": "depset of JavaScript files",
+        "sources": "depset of direct and transitive JavaScript files and sourcemaps",
     },
 )
 
-JSTransitiveNamedModuleInfo = provider(
-    doc = """Same as JSNamedModuleInfo but also includes transitive files.
+def transitive_js_named_module_info(sources, deps = []):
+    """Constructs a JSNamedModuleInfo including all transitive sources from JSNamedModuleInfo providers in a list of deps.
 
-This is typically provided by an aspect such as sources_apsect.
-""",
-    fields = {
-        "sources": "depset of JavaScript files",
-    },
-)
+Returns a single JSNamedModuleInfo.
+"""
+    return combine_js_named_module_info([JSNamedModuleInfo(sources = sources)] + collect_js_named_module_infos(deps))
+
+def combine_js_named_module_info(modules):
+    """Combines all JavaScript sources and sourcemaps from a list of JSNamedModuleInfo providers.
+
+Returns a single JSNamedModuleInfo.
+"""
+    sources_depsets = []
+    for module in modules:
+        sources_depsets.extend([module.sources])
+    return JSNamedModuleInfo(
+        sources = depset(transitive = sources_depsets),
+    )
+
+def collect_js_named_module_infos(deps):
+    """Collects all JSNamedModuleInfo providers from a list of deps.
+
+Returns a list of JSNamedModuleInfo providers.
+"""
+    modules = []
+    for dep in deps:
+        if JSNamedModuleInfo in dep:
+            modules.extend([dep[JSNamedModuleInfo]])
+    return modules
 
 JSEcmaScriptModuleInfo = provider(
     doc = """JavaScript files (and sourcemaps) that are intended to be consumed by downstream tooling.
@@ -100,18 +125,38 @@ TODO: should we require that?
 
 Historical note: this was the typescript.es6_sources output""",
     fields = {
-        "sources": "depset of JavaScript files",
+        "sources": "depset of direct and transitive JavaScript files and sourcemaps",
     },
 )
 
-JSTransitiveEcmaScriptModuleInfo = provider(
-    doc = """Same as JSEcmaScriptModuleInfo but also includes transitive files.
+def transitive_js_ecma_script_module_info(sources, deps = []):
+    """Constructs a JSEcmaScriptModuleInfo including all transitive sources from JSEcmaScriptModuleInfo providers in a list of deps.
 
-This is typically provided by an aspect such as sources_apsect.
-""",
-    fields = {
-        "sources": "depset of JavaScript files",
-    },
-)
+Returns a single JSEcmaScriptModuleInfo.
+"""
+    return combine_js_ecma_script_module_info([JSEcmaScriptModuleInfo(sources = sources)] + collect_js_ecma_script_module_infos(deps))
+
+def combine_js_ecma_script_module_info(modules):
+    """Combines all JavaScript sources and sourcemaps from a list of JSEcmaScriptModuleInfo providers.
+
+Returns a single JSEcmaScriptModuleInfo.
+"""
+    sources_depsets = []
+    for module in modules:
+        sources_depsets.extend([module.sources])
+    return JSEcmaScriptModuleInfo(
+        sources = depset(transitive = sources_depsets),
+    )
+
+def collect_js_ecma_script_module_infos(deps):
+    """Collects all JSEcmaScriptModuleInfo providers from a list of deps.
+
+Returns a list of JSEcmaScriptModuleInfo providers.
+"""
+    modules = []
+    for dep in deps:
+        if JSEcmaScriptModuleInfo in dep:
+            modules.extend([dep[JSEcmaScriptModuleInfo]])
+    return modules
 
 # TODO: TsickleInfo might be a needed provider to send tsickle_externs and type_blacklisted_declarations

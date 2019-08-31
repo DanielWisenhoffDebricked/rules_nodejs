@@ -16,11 +16,14 @@
 """
 
 load("@build_bazel_rules_nodejs//:declaration_provider.bzl", "DeclarationInfo")
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "JSNamedModuleInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "transitive_js_module_info", "transitive_js_named_module_info")
 load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo")
 
 def _node_module_library_impl(ctx):
     workspace = ctx.label.workspace_root.split("/")[1] if ctx.label.workspace_root else ctx.workspace_name
+
+    # sources are all files in srcs
+    sources = depset(ctx.files.srcs)
 
     # declarations are a subset of sources that are declaration files
     declarations = depset([
@@ -34,13 +37,11 @@ def _node_module_library_impl(ctx):
            len(f.path.split("/node_modules/")) < 3 and f.path.find("/node_modules/typescript/lib/lib.") == -1
     ])
 
-    sources = depset(ctx.files.srcs)
+    # transitive_sources are all files in srcs plus those in direct & transitive dependencies
+    transitive_sources = sources
 
     # transitive_declarations are all .d.ts files in srcs plus those in direct & transitive dependencies
-    transitive_declarations = depset(transitive = [declarations])
-
-    # transitive_sources are all files in srcs plus those in direct & transitive dependencies
-    transitive_sources = depset(transitive = [sources])
+    transitive_declarations = declarations
 
     for dep in ctx.attr.deps:
         if DeclarationInfo in dep:
@@ -72,12 +73,14 @@ def _node_module_library_impl(ctx):
                 declarations = declarations,
                 transitive_declarations = transitive_declarations,
             ),
-            JSModuleInfo(
-                sources = sources,
+            transitive_js_module_info(
                 module_format = "",
+                sources = sources,
+                deps = ctx.attr.deps,
             ),
-            JSNamedModuleInfo(
+            transitive_js_named_module_info(
                 sources = depset(ctx.files.named_sources),
+                deps = ctx.attr.deps,
             ),
         ],
     )

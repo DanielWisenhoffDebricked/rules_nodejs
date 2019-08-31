@@ -1,15 +1,15 @@
 diff --git a/internal/common/compilation.bzl b/internal/common/compilation.bzl
-index 3155f0c..466fdb9 100644
+index 3155f0c..3c67ad3 100644
 --- a/internal/common/compilation.bzl
 +++ b/internal/common/compilation.bzl
 @@ -18,8 +18,10 @@
  load(":common/json_marshal.bzl", "json_marshal")
  load(":common/module_mappings.bzl", "module_mappings_aspect")
  load("@build_bazel_rules_nodejs//:declaration_provider.bzl", "DeclarationInfo")
-+load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "JSNamedModuleInfo", "JSEcmaScriptModuleInfo")
++load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "JSNamedModuleInfo", "JSEcmaScriptModuleInfo", "transitive_js_module_info", "transitive_js_named_module_info", "transitive_js_ecma_script_module_info")
  
  _DEBUG = False
-+_LEGACY_TYPESCRIPT_PROVIDER_SUPPORT = True
++_LEGACY_TYPESCRIPT_PROVIDER_SUPPORT = False
  
  DEPS_ASPECTS = [
      module_mappings_aspect,
@@ -172,24 +172,27 @@ index 3155f0c..466fdb9 100644
      return {
          "providers": [
              DefaultInfo(
-@@ -489,6 +520,16 @@ def compile_ts(
+@@ -489,6 +520,19 @@ def compile_ts(
                  declarations = depset(transitive = declarations_depsets),
                  transitive_declarations = transitive_decls,
              ),
-+            JSModuleInfo(
-+                sources = es5_sources,
++            transitive_js_module_info(
 +                module_format = "umd",
-+            ),
-+            JSNamedModuleInfo(
 +                sources = es5_sources,
++                deps = ctx.attr.deps,
 +            ),
-+            JSEcmaScriptModuleInfo(
++            transitive_js_named_module_info(
++                sources = es5_sources,
++                deps = ctx.attr.deps,
++            ),
++            transitive_js_ecma_script_module_info(
 +                sources = es6_sources,
++                deps = ctx.attr.deps,
 +            ),
          ],
          "instrumented_files": {
              "dependency_attributes": ["deps", "runtime_deps"],
-@@ -510,7 +551,6 @@ def compile_ts(
+@@ -510,7 +554,6 @@ def compile_ts(
              "replay_params": replay_params,
              # TODO(b/139705078): remove when consumers migrated to DeclarationInfo
              "transitive_declarations": transitive_decls,

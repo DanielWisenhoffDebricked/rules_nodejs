@@ -17,7 +17,7 @@
 Outputs a manifest file with the sources listed.
 """
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSTransitiveNamedModuleInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
 
 # Avoid using non-normalized paths (workspace/../other_workspace/path)
 def _to_manifest_path(ctx, file):
@@ -27,13 +27,10 @@ def _to_manifest_path(ctx, file):
         return ctx.workspace_name + "/" + file.short_path
 
 def _devmode_js_sources_impl(ctx):
-    # Since we apply the sources_aspect to our deps below, we can iterate through
-    # the deps and fetch all transitive named js files from the JSTransitiveNamedModuleInfo
-    # provider returned from the apsect.
     sources_depsets = []
     for dep in ctx.attr.deps:
-        if JSTransitiveNamedModuleInfo in dep:
-            sources_depsets.append(dep[JSTransitiveNamedModuleInfo].sources)
+        if JSNamedModuleInfo in dep:
+            sources_depsets.append(dep[JSNamedModuleInfo].sources)
         if hasattr(dep, "files"):
             sources_depsets.append(dep.files)
     sources = depset(transitive = sources_depsets)
@@ -53,7 +50,6 @@ devmode_js_sources = rule(
     attrs = {
         "deps": attr.label_list(
             allow_files = True,
-            aspects = [sources_aspect],
         ),
     },
     outputs = {

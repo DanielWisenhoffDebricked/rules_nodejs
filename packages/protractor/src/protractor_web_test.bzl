@@ -14,9 +14,8 @@
 "Run end-to-end tests with Protractor"
 
 load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "JSTransitiveModuleInfo", "JSTransitiveNamedModuleInfo")
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo")
-load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "JSNamedModuleInfo")
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "node_modules_aspect")
 load("@build_bazel_rules_nodejs//internal/common:windows_utils.bzl", "create_windows_native_launcher_script", "is_windows")
 load("@io_bazel_rules_webtesting//web:web.bzl", "web_test_suite")
 load("@io_bazel_rules_webtesting//web/internal:constants.bzl", "DEFAULT_WRAPPED_TEST_TAGS")
@@ -40,11 +39,11 @@ def _protractor_web_test_impl(ctx):
 
     files_depsets = [depset(ctx.files.srcs)]
     for dep in ctx.attr.deps:
-        if JSTransitiveNamedModuleInfo in dep:
-            files_depsets.append(dep[JSTransitiveNamedModuleInfo].sources)
-        if not JSTransitiveNamedModuleInfo in dep and not NodeModuleInfo in dep and hasattr(dep, "files"):
+        if JSNamedModuleInfo in dep:
+            files_depsets.append(dep[JSNamedModuleInfo].sources)
+        if not JSNamedModuleInfo in dep and not NodeModuleInfo in dep and hasattr(dep, "files"):
             # These are javascript files provided by DefaultInfo from a direct
-            # dep that has no JSTransitiveNamedModuleInfo provider or NodeModuleInfo
+            # dep that has no JSNamedModuleInfo provider or NodeModuleInfo
             # provider (not an npm dep). These files must be in named AMD or named
             # UMD format.
             files_depsets.append(dep.files)
@@ -66,8 +65,8 @@ def _protractor_web_test_impl(ctx):
     configuration_sources = []
     configuration_file = None
     if ctx.attr.configuration:
-        if JSTransitiveModuleInfo in ctx.attr.configuration:
-            configuration_sources = ctx.attr.configuration[JSTransitiveModuleInfo].sources.to_list()
+        if JSModuleInfo in ctx.attr.configuration:
+            configuration_sources = ctx.attr.configuration[JSModuleInfo].sources.to_list()
         else:
             configuration_sources = [ctx.file.configuration]
         if JSModuleInfo in ctx.attr.configuration:
@@ -78,8 +77,8 @@ def _protractor_web_test_impl(ctx):
     on_prepare_sources = []
     on_prepare_file = None
     if ctx.attr.on_prepare:
-        if JSTransitiveModuleInfo in ctx.attr.on_prepare:
-            on_prepare_sources = ctx.attr.on_prepare[JSTransitiveModuleInfo].sources.to_list()
+        if JSModuleInfo in ctx.attr.on_prepare:
+            on_prepare_sources = ctx.attr.on_prepare[JSModuleInfo].sources.to_list()
         else:
             on_prepare_sources = [ctx.file.on_prepare]
         if JSModuleInfo in ctx.attr.on_prepare:
@@ -168,7 +167,6 @@ _protractor_web_test = rule(
         "configuration": attr.label(
             doc = "Protractor configuration file",
             allow_single_file = True,
-            aspects = [sources_aspect],
         ),
         "data": attr.label_list(
             doc = "Runtime dependencies",
@@ -178,7 +176,6 @@ _protractor_web_test = rule(
             If the script exports a function which returns a promise, protractor
             will wait for the promise to resolve before beginning tests.""",
             allow_single_file = True,
-            aspects = [sources_aspect],
         ),
         "protractor": attr.label(
             doc = "Protractor executable target",
@@ -195,7 +192,7 @@ _protractor_web_test = rule(
         "deps": attr.label_list(
             doc = "Other targets which produce JavaScript such as `ts_library`",
             allow_files = True,
-            aspects = [sources_aspect],
+            aspects = [node_modules_aspect],
         ),
         "_conf_tmpl": attr.label(
             default = Label(_CONF_TMPL),

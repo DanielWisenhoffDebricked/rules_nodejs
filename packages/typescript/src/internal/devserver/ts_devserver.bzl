@@ -14,9 +14,8 @@
 
 "Simple development server"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSTransitiveNamedModuleInfo")
-load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo")
-load("@build_bazel_rules_nodejs//internal/common:sources_aspect.bzl", "sources_aspect")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSNamedModuleInfo")
+load("@build_bazel_rules_nodejs//internal/common:node_module_info.bzl", "NodeModuleInfo", "node_modules_aspect")
 load(
     "@build_bazel_rules_nodejs//internal/js_library:js_library.bzl",
     "write_amd_names_shim",
@@ -37,11 +36,11 @@ def _to_manifest_path(ctx, file):
 def _ts_devserver(ctx):
     files_depsets = []
     for dep in ctx.attr.deps:
-        if JSTransitiveNamedModuleInfo in dep:
-            files_depsets.append(dep[JSTransitiveNamedModuleInfo].sources)
-        if not JSTransitiveNamedModuleInfo in dep and not NodeModuleInfo in dep and hasattr(dep, "files"):
+        if JSNamedModuleInfo in dep:
+            files_depsets.append(dep[JSNamedModuleInfo].sources)
+        if not JSNamedModuleInfo in dep and not NodeModuleInfo in dep and hasattr(dep, "files"):
             # These are javascript files provided by DefaultInfo from a direct
-            # dep that has no JSTransitiveNamedModuleInfo provider or NodeModuleInfo
+            # dep that has no JSNamedModuleInfo provider or NodeModuleInfo
             # provider (not an npm dep). These files must be in named AMD or named
             # UMD format.
             files_depsets.append(dep.files)
@@ -204,7 +203,7 @@ ts_devserver = rule(
         "deps": attr.label_list(
             doc = "Targets that produce JavaScript, such as `ts_library`",
             allow_files = True,
-            aspects = [sources_aspect],
+            aspects = [node_modules_aspect],
         ),
         "_bash_runfile_helpers": attr.label(default = Label("@bazel_tools//tools/bash/runfiles")),
         "_injector": attr.label(
