@@ -3,7 +3,7 @@
     "@bazel/karma": "latest",
     "@bazel/typescript": "latest",
     "@types/jasmine": "2.8.2",
-    "typescript": "3.1.x"
+    "typescript": "3.9.7"
   },
   "scripts": {
     "test": "bazel test ..."
