@@ -2,7 +2,7 @@
   "dependencies": {
     "@bazel/karma": "latest",
     "@bazel/typescript": "latest",
-    "@types/jasmine": "2.8.2",
+    "@types/jasmine": "2.8.17",
     "typescript": "3.1.x"
   },
   "scripts": {
