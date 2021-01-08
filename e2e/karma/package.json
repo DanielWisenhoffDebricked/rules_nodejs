@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "@bazel/karma": "latest",
-    "karma": "3.0.0"
+    "@bazel/karma": "0.41.0",
+    "karma": "5.0.8"
   },
   "scripts": {
     "test": "bazel test ..."
