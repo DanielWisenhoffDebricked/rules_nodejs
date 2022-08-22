@@ -1,9 +1,13 @@
 {
   "dependencies": {
-    "@bazel/karma": "latest",
-    "karma": "3.0.0"
+    "@bazel/karma": "0.41.0",
+    "karma": "6.3.16",
+    "@snyk/protect": "latest"
   },
   "scripts": {
-    "test": "bazel test ..."
-  }
+    "test": "bazel test ...",
+    "prepare": "yarn run snyk-protect",
+    "snyk-protect": "snyk-protect"
+  },
+  "snyk": true
 }
