@@ -1,14 +1,18 @@
 {
   "dependencies": {
     "@bazel/jasmine": "latest",
-    "@bazel/karma": "latest",
-    "@bazel/typescript": "latest",
+    "@bazel/karma": "0.41.0",
+    "@bazel/typescript": "5.5.1",
     "@types/jasmine": "^3.3.12",
     "jasmine": "^3.4.0",
     "rxjs": "6.5.0",
-    "typescript": "2.9.2"
+    "typescript": "2.9.2",
+    "@snyk/protect": "latest"
   },
   "scripts": {
-    "test": "bazel test ..."
-  }
+    "test": "bazel test ...",
+    "prepare": "yarn run snyk-protect",
+    "snyk-protect": "snyk-protect"
+  },
+  "snyk": true
 }
