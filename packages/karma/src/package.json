@@ -30,7 +30,7 @@
     "karma-sauce-launcher": "2.0.2",
     "karma-sourcemap-loader": "0.3.7",
     "requirejs": "2.3.5",
-    "semver": "5.6.0",
+    "semver": "7.5.2",
     "tmp": "0.0.33"
   },
   "bazelWorkspaces": {
