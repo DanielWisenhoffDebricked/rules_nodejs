@@ -1,7 +1,7 @@
 {
     "name": "@bazel/stylus",
     "dependencies": {
-        "stylus": "~0.54.5"
+        "stylus": "~0.64.0"
     },
     "description": "Run Stylus CSS preprocessor under Bazel",
     "license": "Apache-2.0",
