@@ -17,7 +17,7 @@
   ],
   "main": "index.js",
   "dependencies": {
-      "protractor": "^5.4.2"
+      "protractor": "^7.0.0"
   },
   "bazelWorkspaces": {
       "npm_bazel_protractor": {
