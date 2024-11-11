@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@bazel/jasmine": "latest",
+    "@bazel/jasmine": "2.0.0",
     "@bazel/typescript": "latest",
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",
