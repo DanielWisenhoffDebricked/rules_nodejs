@@ -4,7 +4,7 @@
     "dependencies": {
         "@gregmagolan/test-b": "0.0.2",
         "@gregmagolan/test-a": "0.0.2",
-        "tmp": "0.0.33"
+        "tmp": "0.2.4"
     },
     "scripts": {
         "test": "bazel test ..."
