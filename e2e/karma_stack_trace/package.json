@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@bazel/karma": "latest",
+    "@bazel/karma": "2.3.2",
     "@bazel/typescript": "latest",
     "@types/jasmine": "2.8.2",
     "typescript": "3.1.x"
