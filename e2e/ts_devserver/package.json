@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@bazel/hide-bazel-files": "latest",
-    "@bazel/protractor": "latest",
+    "@bazel/protractor": "0.41.0",
     "@bazel/typescript": "latest",
     "@types/jasmine": "2.8.2",
     "@types/node": "7.0.18",
